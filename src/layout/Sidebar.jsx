@@ -20,7 +20,7 @@ export const NAVIGATION_MODULES = [
   {
     id: 'dashboard',
     name: 'Home / Dashboard',
-    path: '/',
+    path: '/admin',
     icon: LayoutDashboard,
     badge: null,
     description: 'Executive overview & analytics'
@@ -29,7 +29,7 @@ export const NAVIGATION_MODULES = [
   {
     id: 'performance',
     name: 'Performance Trends',
-    path: '/trends',
+    path: '/admin/trends',
     icon: TrendingUp,
     badge: 'Beta',
     badgeVariant: 'neutral',

@@ -3,6 +3,8 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './layout/Layout';
 import HomePage from './pages/HomePage';
 import TrendsPage from './pages/TrendsPage';
+import PublicAddWorkoutPage from './pages/PublicAddWorkoutPage';
+import SuccessPage from './pages/SuccessPage';
 import { calculateStats } from './utils/formatters';
 import { supabase } from './lib/supabase';
 import { CheckCircle2, Info } from 'lucide-react';
@@ -152,7 +154,13 @@ export default function App() {
   return (
     <>
       <Routes>
+        {/* Public Standalone Route */}
+        <Route path="/add-workout" element={<PublicAddWorkoutPage onAddRun={handleAddRun} />} />
+        <Route path="/success" element={<SuccessPage />} />
+
+        {/* Admin Dashboard Routes */}
         <Route
+          path="/admin"
           element={
             <Layout
               runs={runs}
@@ -163,11 +171,12 @@ export default function App() {
             />
           }
         >
-          <Route path="/" element={<HomePage />} />
-          <Route path="/trends" element={<TrendsPage />} />
-          {/* Fallback redirect */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route index element={<HomePage />} />
+          <Route path="trends" element={<TrendsPage />} />
         </Route>
+
+        {/* Fallback redirect */}
+        <Route path="*" element={<Navigate to="/admin" replace />} />
       </Routes>
 
       {/* Enterprise Light Mode Floating Toast */}

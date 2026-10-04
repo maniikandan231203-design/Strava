@@ -11,8 +11,10 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { format, parseISO } from 'date-fns';
 import { timeStringToSeconds, secondsToPaceString } from '../utils/formatters';
+import { useNavigate } from 'react-router-dom';
 
-export default function AddRunForm({ onAddRun, onEditRun, onViewReport, onCancel, initialData, isViewOnly, isEditMode }) {
+export default function AddRunForm({ onAddRun, onEditRun, onViewReport, onCancel, initialData, isViewOnly, isEditMode, hideHeader, isPublic }) {
+  const navigate = useNavigate();
   const todayStr = new Date().toISOString().split('T')[0];
 
   const initialFormState = {
@@ -98,7 +100,7 @@ export default function AddRunForm({ onAddRun, onEditRun, onViewReport, onCancel
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (isViewOnly) return;
@@ -121,9 +123,14 @@ export default function AddRunForm({ onAddRun, onEditRun, onViewReport, onCancel
     };
 
     if (isEditMode && onEditRun) {
-      onEditRun(runData);
+      await onEditRun(runData);
     } else if (onAddRun) {
-      onAddRun(runData);
+      await onAddRun(runData);
+    }
+
+    if (isPublic) {
+      navigate('/success');
+      return;
     }
 
     setSuccessMessage(isEditMode ? `Run "${runData.name}" updated successfully!` : `Run "${runData.name}" recorded successfully!`);
@@ -148,18 +155,20 @@ export default function AddRunForm({ onAddRun, onEditRun, onViewReport, onCancel
   };
 
   return (
-    <div className="w-full px-2 sm:px-4 pb-4">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-6 border-b border-gray-100 gap-2">
-        <div>
-          <h3 className="text-lg font-bold text-gray-900 tracking-tight flex items-center gap-2">
-            <PlusCircle className="w-5 h-5 text-gray-700" />
-            <span>{isViewOnly ? 'View Running Session' : isEditMode ? 'Edit Running Session' : 'Record New Running Session'}</span>
-          </h3>
+    <div className="w-full px-1 sm:px-2 pb-2">
+      {!hideHeader && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-4 border-b border-gray-100 gap-2">
+          <div>
+            <h3 className="text-lg font-bold text-gray-900 tracking-tight flex items-center gap-2">
+              <PlusCircle className="w-5 h-5 text-gray-700" />
+              <span>{isViewOnly ? 'View Running Session' : isEditMode ? 'Edit Running Session' : 'Record New Running Session'}</span>
+            </h3>
+          </div>
         </div>
-      </div>
+      )}
 
       {successMessage && (
-        <div className="mb-6 p-4 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-between text-emerald-900">
+        <div className="mb-4 p-3 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-between text-emerald-900">
           <div className="flex items-center space-x-2.5">
             <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
             <span className="text-sm font-medium">{successMessage}</span>
@@ -177,7 +186,7 @@ export default function AddRunForm({ onAddRun, onEditRun, onViewReport, onCancel
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
         {/* Workout Category Tags */}
         <div>
           <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-2">
@@ -202,7 +211,7 @@ export default function AddRunForm({ onAddRun, onEditRun, onViewReport, onCancel
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Run Name */}
           <div>
             <label htmlFor="run-name" className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1.5">
@@ -368,15 +377,7 @@ export default function AddRunForm({ onAddRun, onEditRun, onViewReport, onCancel
         </div>
 
         {/* Action Buttons */}
-        <div className="pt-2 flex flex-col sm:flex-row items-center justify-end gap-3">
-          <button
-            type="button"
-            onClick={onCancel || handleReset}
-            className="w-full sm:w-auto px-5 py-2.5 rounded-lg text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 transition-colors flex items-center justify-center"
-          >
-            <span>{isViewOnly ? 'Close' : 'Cancel'}</span>
-          </button>
-
+        <div className="pt-2 flex flex-col sm:flex-row-reverse items-center justify-start gap-3">
           {!isViewOnly && (
             <button
               id="submit-run-btn"
@@ -387,6 +388,14 @@ export default function AddRunForm({ onAddRun, onEditRun, onViewReport, onCancel
               <span>{isEditMode ? 'Save Changes' : 'Submit'}</span>
             </button>
           )}
+
+          <button
+            type="button"
+            onClick={onCancel || handleReset}
+            className="w-full sm:w-auto px-5 py-2.5 rounded-lg text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 transition-colors flex items-center justify-center"
+          >
+            <span>{isViewOnly ? 'Close' : 'Cancel'}</span>
+          </button>
         </div>
       </form>
     </div>
