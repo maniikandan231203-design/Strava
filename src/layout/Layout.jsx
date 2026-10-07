@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
-import { Menu, Plus, Calendar, X } from 'lucide-react';
+import { Menu, Plus, Calendar, X, LogOut } from 'lucide-react';
 import AddRunForm from '../components/AddRunForm';
+import { supabase } from '../lib/supabase';
 
 export default function Layout({ 
   runs, 
@@ -13,6 +14,12 @@ export default function Layout({
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [modalConfig, setModalConfig] = useState({ isOpen: false, mode: 'add', run: null });
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/login');
+  };
 
   const handleOpenAdd = () => setModalConfig({ isOpen: true, mode: 'add', run: null });
   const handleOpenEdit = (run) => setModalConfig({ isOpen: true, mode: 'edit', run });
@@ -61,6 +68,14 @@ export default function Layout({
               <Calendar className="w-3.5 h-3.5 text-gray-400" />
               <span>{todayFormatted}</span>
             </div>
+
+            <button
+              onClick={handleLogout}
+              className="flex items-center space-x-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 shadow-xs transition-colors"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Logout</span>
+            </button>
 
             <button
               onClick={handleOpenAdd}

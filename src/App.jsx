@@ -8,6 +8,8 @@ import SuccessPage from './pages/SuccessPage';
 import { calculateStats } from './utils/formatters';
 import { supabase } from './lib/supabase';
 import { CheckCircle2, Info } from 'lucide-react';
+import Login from './pages/Login';
+import ProtectedRoute from './components/ProtectedRoute';
 
 export default function App() {
   // Local runs state with localStorage persistence
@@ -158,17 +160,21 @@ export default function App() {
         <Route path="/add-workout" element={<PublicAddWorkoutPage onAddRun={handleAddRun} />} />
         <Route path="/success" element={<SuccessPage />} />
 
+        <Route path="/login" element={<Login />} />
+
         {/* Admin Dashboard Routes */}
         <Route
           path="/admin"
           element={
-            <Layout
-              runs={runs}
-              onAddRun={handleAddRun}
-              onEditRun={handleEditRun}
-              onDeleteRun={handleDeleteRun}
-              stats={stats}
-            />
+            <ProtectedRoute>
+              <Layout
+                runs={runs}
+                onAddRun={handleAddRun}
+                onEditRun={handleEditRun}
+                onDeleteRun={handleDeleteRun}
+                stats={stats}
+              />
+            </ProtectedRoute>
           }
         >
           <Route index element={<HomePage />} />
